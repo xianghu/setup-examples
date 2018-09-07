@@ -14,6 +14,10 @@ coreos:
   flannel:
     interface: $public_ipv4
   units:
+  - name: update-engine.service
+    command: stop
+  - name: locksmithd.service
+    command: stop    
   - name: etcd2.service
     command: start
   - name: fleet.service

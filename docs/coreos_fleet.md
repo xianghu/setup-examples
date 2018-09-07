@@ -2,7 +2,11 @@
 
 ## Requirements
 - Install [fleetctl client](https://coreos.com/fleet/docs/latest/launching-containers-fleet.html)
-  - On OS X, you can install it using `brew install fleetctl`.
+  - On OS X, you can install it using `brew install fleetctl`. (fleetctl 1.0 doesn't work, have to use 0.11.8)
+    1.  `brew install go`  
+    2.  download [fleetctl v0.11.8 src](https://github.com/coreos/fleet/releases/tag/v0.11.8)
+    3.  `./build`
+    4.  `sudo cp bin/fleetctl /usr/local/bin`
 - Make sure that rethinkdb is running by following [these instructions](../README.md#create-rethinkdb-cluster)
 
 ## Configuration
@@ -142,7 +146,7 @@ Unit stf-websocket@.service inactive
                  stf-storage-plugin-image@3400  \
                  stf-storage-temp@3500          \
                  stf-websocket@3600             \
-                 stf-api@3700
+                 stf-api@3700                   \
                  stf-provider@{1..3}            \
                  stf-processor@{1..3}           \
                  stf-triproxy-dev               \
