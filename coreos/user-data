@@ -3,11 +3,14 @@
 ---
 coreos:
   etcd2:
+    name: <name>
     advertise-client-urls: http://$public_ipv4:2379
-    initial-advertise-peer-urls: http://$private_ipv4:2380
-    listen-client-urls: http://0.0.0.0:2379
-    listen-peer-urls: http://$private_ipv4:2380
-    discovery: https://discovery.etcd.io/<token>
+    initial-advertise-peer-urls: http://$public_ipv4:2380
+    listen-client-urls: http://$public_ipv4:2379,http://$private_ipv4:2379
+    listen-peer-urls: http://$public_ipv4:2380
+    initial-cluster-token: stf-etcd-cluster
+    initial-cluster: core-01=http://192.168.1.121:2380,core-02=http://192.168.1.122:2380,core-03=http://192.168.1.123:2380
+    initial-cluster-state: new
   fleet:
     public-ip: $public_ipv4
     metadata: <metadata>
@@ -17,6 +20,7 @@ coreos:
   - name: update-engine.service
     command: stop
   - name: locksmithd.service
+    command: stop
     command: stop    
   - name: etcd2.service
     command: start

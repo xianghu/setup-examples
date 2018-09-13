@@ -10,25 +10,26 @@ Vagrant.require_version '>= 1.6.0'
 CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), 'user-data')
 
 update_channel = 'alpha'
-image_version = '1221.0.0'
+image_version = "1221.0.0"
 vm_memory = 512
 vm_cpus = 1
 
 cluster = [
-  { name: 'core-01', hostname: 'core-01', ip: '172.17.8.101', metadata: 'role=nginx'   },
-  { name: 'core-02', hostname: 'core-02', ip: '172.17.8.102', metadata: 'role=appside' },
-  { name: 'core-03', hostname: 'core-03', ip: '172.17.8.103', metadata: 'role=devside' }
+  { name: 'core-01', hostname: 'core-01', ip: '192.168.1.121', metadata: 'role=nginx'   },
+  { name: 'core-02', hostname: 'core-02', ip: '192.168.1.122', metadata: 'role=appside' },
+  { name: 'core-03', hostname: 'core-03', ip: '192.168.1.123', metadata: 'role=devside' }
 ]
 
 # Used to fetch a new discovery token for a cluster of size 3
-new_discovery_url = "https://discovery.etcd.io/new?size=#{ cluster.size }"
-token = open(new_discovery_url).read
+## new_discovery_url = "https://discovery.etcd.io/new?size=#{ cluster.size }"
+## token = open(new_discovery_url).read
 
 Vagrant.configure('2') do |config|
   # always use Vagrants insecure key
   config.ssh.insert_key = false
 
   config.vm.box = "coreos-%s" % update_channel
+  # config.vm.box_version = $image_version
   config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [update_channel, image_version]
 
   config.vm.provider :virtualbox do |v|
@@ -55,17 +56,49 @@ Vagrant.configure('2') do |config|
           # In case of multiple devices, copy and paste below line.
 
           # v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', $ANY_NAME, '--vendorid', $VENDOR_ID, '--productid', $PRODUCT_ID]
+
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'VIVO X21A', '--vendorid', '0x2d95', '--productid', '0x6003']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'VIVO X9i', '--vendorid', '0x2d95', '--productid', '0x6001']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'VIVO Y66', '--vendorid', '0x05c6', '--productid', '0x9039']
+
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'MEIZU MX4 Pro', '--vendorid', '0x2a45', '--productid', '0x0c02']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'SMARTISAN', '--vendorid', '0x29a9', '--productid', '0x701a']
+
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'XIAOMI Redmi Note 4X', '--vendorid', '0x2717', '--productid', '0xff48']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'XIAOMI MI 4LTE', '--vendorid', '0x2717', '--productid', '0x0368']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'XIAOMI MI 3', '--vendorid', '0x2717', '--productid', '0x0368']
+
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'OPPO A57', '--vendorid', '0x22d9', '--productid', '0x2774']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'OPPO PACM00', '--vendorid', '0x22d9', '--productid', '0x2772']
+
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'HUAWEI VTR-AL00', '--vendorid', '0x12d1', '--productid', '0x107e']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'HUAWEI MHA-AL00', '--vendorid', '0x12d1', '--productid', '0x107e']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'HUAWEI MLA-AL00', '--vendorid', '0x12d1', '--productid', '0x107d']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'HUAWEI MHA-KIW-AL10', '--vendorid', '0x12d1', '--productid', '0x1079']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'HUAWEI P7-L00', '--vendorid', '0x12d1', '--productid', '0x1052']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'HUAWEI H60-L02', '--vendorid', '0x12d1', '--productid', '0x1052']
+
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'SAMSUNG SM-N9002', '--vendorid', '0x04e8', '--productid', '0x6860']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'SAMSUNG SM-G7108V', '--vendorid', '0x04e8', '--productid', '0x6860']
+          v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', 'SAMSUNG GT-I9507V', '--vendorid', '0x04e8', '--productid', '0x6860']
+
+          # v.customize ['usbfilter', 'add', '0', '--target', :id, '--name', $ANY_NAME, '--vendorid', $VENDOR_ID, '--productid', $PRODUCT_ID]
+
+          config.vm.network "forwarded_port", guest: 80, host: 7100
         end
       end
 
-      config.vm.network :private_network, ip: node[:ip]
+      config.vm.network :public_network, ip: node[:ip]
 
       ## Provisioning
       # cloudconfig-init
       data = YAML.load(IO.readlines('user-data')[1..-1].join)
 
       # Add discovery url
-      data['coreos']['etcd2']['discovery'] = token
+      ## data['coreos']['etcd2']['discovery'] = token
+
+      # Add etcd2 name  
+      data['coreos']['etcd2']['name'] = node[:name]
 
       # Add metadata
       data['coreos']['fleet']['metadata'] = node[:metadata]
